@@ -32,8 +32,8 @@ export declare class Pages {
     private readonly ch;
     private ac;
     dispose(): void;
-    onTransitionStart: (handler: (arg: Pages) => void) => void;
-    onTransitionEnd: (handler: (arg: Pages) => void) => void;
+    onTransitionStart: (handler: (arg: Pages) => Promise<boolean> | void) => void;
+    onTransitionEnd: (handler: (arg: Pages) => Promise<boolean> | void) => void;
     beforeEnter: (pageId: string, callback: (pages: Pages) => void) => void;
     onEnter: (pageId: string, callback: (pages: Pages) => void) => void;
     onExit: (pageId: string, callback: (pages: Pages) => void) => void;

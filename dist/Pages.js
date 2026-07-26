@@ -1,4 +1,4 @@
-import { CallbackHandler } from "@ipota/my-utils";
+import { CallbackHandlerRegExp } from "@ipota/my-utils";
 import { PageDom } from "./PageDom";
 import { PageState } from "./PageState";
 import { parseToNumber } from "./parseToNumber";
@@ -11,16 +11,16 @@ export class Pages {
     static cache = new Map();
     dom;
     state;
-    ch = new CallbackHandler();
+    ch = new CallbackHandlerRegExp();
     ac = new AbortController();
     dispose() {
         this.ac.abort();
     }
     onTransitionStart = this.ch.on.bind(this.ch, "transition-start");
     onTransitionEnd = this.ch.on.bind(this.ch, "transition-end");
-    beforeEnter = (pageId, callback) => this.ch.on(`before-enter-${pageId}`, callback);
-    onEnter = (pageId, callback) => this.ch.on(`on-enter-${pageId}`, callback);
-    onExit = (pageId, callback) => this.ch.on(`on-exit-${pageId}`, callback);
+    beforeEnter = (pageId, callback) => this.ch.on(`before-enter-(${pageId})`, callback);
+    onEnter = (pageId, callback) => this.ch.on(`on-enter-(${pageId})`, callback);
+    onExit = (pageId, callback) => this.ch.on(`on-exit-(${pageId})`, callback);
     getHistory() {
         return this.state.getHistory();
     }

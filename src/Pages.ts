@@ -44,9 +44,9 @@ export class Pages {
 
     onTransitionStart = this.ch.on.bind(this.ch, "transition-start")
     onTransitionEnd = this.ch.on.bind(this.ch, "transition-end")
-    beforeEnter = (pageId: string, callback: (pages: Pages) => void) => this.ch.on(`before-enter-[${pageId}]`, callback)
-    onEnter = (pageId: string, callback: (pages: Pages) => void) => this.ch.on(`on-enter-[${pageId}]`, callback)
-    onExit = (pageId: string, callback: (pages: Pages) => void) => this.ch.on(`on-exit-[${pageId}]`, callback)
+    beforeEnter = (pageId: string, callback: (pages: Pages) => void) => this.ch.on(`before-enter-(${pageId})`, callback)
+    onEnter = (pageId: string, callback: (pages: Pages) => void) => this.ch.on(`on-enter-(${pageId})`, callback)
+    onExit = (pageId: string, callback: (pages: Pages) => void) => this.ch.on(`on-exit-(${pageId})`, callback)
 
     getHistory() {
         return this.state.getHistory()
