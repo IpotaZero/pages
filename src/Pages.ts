@@ -136,9 +136,10 @@ export class Pages {
         nextPageId: string,
         { isBack, msIn, msOut }: PagesGotoOption,
     ) {
+        console.log(`before-enter-${nextPageId}`)
         const result = await this.ch.run(`before-enter-${nextPageId}`, this)
         if (!result) return
-        if (!to) throw new Error("止めろ。")
+        if (!to) throw new Error("存在しないページに行こうとした。")
 
         const layerFrom = parseToNumber(from.dataset.layer, 0)
         const layerTo = parseToNumber(to.dataset.layer, 0)

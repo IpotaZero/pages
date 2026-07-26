@@ -80,11 +80,12 @@ export class Pages {
         this.transition(this.getCurrentPage(), this.dom.getPage(nextPageId, { noError: true }), nextPageId, option);
     }
     async transition(from, to, nextPageId, { isBack, msIn, msOut }) {
+        console.log(`before-enter-${nextPageId}`);
         const result = await this.ch.run(`before-enter-${nextPageId}`, this);
         if (!result)
             return;
         if (!to)
-            throw new Error("止めろ。");
+            throw new Error("存在しないページに行こうとした。");
         const layerFrom = parseToNumber(from.dataset.layer, 0);
         const layerTo = parseToNumber(to.dataset.layer, 0);
         if (layerFrom > layerTo && !isBack) {
