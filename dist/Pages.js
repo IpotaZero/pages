@@ -21,6 +21,8 @@ export class Pages {
     beforeEnter = (pageId, callback) => this.ch.on(`before-enter-(${pageId})`, callback);
     onEnter = (pageId, callback) => this.ch.on(`on-enter-(${pageId})`, callback);
     onExit = (pageId, callback) => this.ch.on(`on-exit-(${pageId})`, callback);
+    onJustEnter = (pageId, callback) => this.ch.on(`on-just-enter-(${pageId})`, callback);
+    onBack = this.ch.on.bind(this.ch, "on-back");
     getHistory() {
         return this.state.getHistory();
     }
@@ -77,15 +79,18 @@ export class Pages {
         await this.goto(id, Object.assign(option, { msIn: 100, msOut: 100, isBack: false }));
     }
     async goto(nextPageId, option) {
-        this.transition(this.getCurrentPage(), this.dom.getPage(nextPageId, { noError: true }), nextPageId, option);
-    }
-    async transition(from, to, nextPageId, { isBack, msIn, msOut }) {
-        console.log(`before-enter-${nextPageId}`);
         const result = await this.ch.run(`before-enter-${nextPageId}`, this);
         if (!result)
             return;
+        const from = this.getCurrentPage();
+        const to = this.dom.getPage(nextPageId, { noError: true });
+        if (!from)
+            throw new Error("現在のページが存在しない。(そんなことある？？？)");
         if (!to)
             throw new Error("存在しないページに行こうとした。");
+        this.transition(from, to, nextPageId, option);
+    }
+    async transition(from, to, nextPageId, { isBack, msIn, msOut }) {
         const layerFrom = parseToNumber(from.dataset.layer, 0);
         const layerTo = parseToNumber(to.dataset.layer, 0);
         if (layerFrom > layerTo && !isBack) {
@@ -99,6 +104,12 @@ export class Pages {
         this.dom.animate(from, to, layerFrom, layerTo, transition);
         this.ch.run(`on-exit-${currentPageId}`, this);
         this.ch.run(`on-enter-${nextPageId}`, this);
+        if (isBack) {
+            this.ch.run("on-back", this);
+        }
+        else {
+            this.ch.run(`on-just-enter-${nextPageId}`, this);
+        }
         this.ch.run("transition-end", this);
     }
     DEFAULT_IN_MS = 100;

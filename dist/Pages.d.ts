@@ -37,6 +37,8 @@ export declare class Pages {
     beforeEnter: (pageId: string, callback: (pages: Pages) => void) => void;
     onEnter: (pageId: string, callback: (pages: Pages) => void) => void;
     onExit: (pageId: string, callback: (pages: Pages) => void) => void;
+    onJustEnter: (pageId: string, callback: (pages: Pages) => void) => void;
+    onBack: (handler: (arg: Pages) => Promise<boolean> | void) => void;
     getHistory(): readonly string[];
     private readonly transitions;
     setTransition(from: string, to: string, forward: PagesTransitionArgs): void;

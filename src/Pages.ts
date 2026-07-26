@@ -32,7 +32,13 @@ export class Pages {
     private state!: PageState
 
     private readonly ch = new CallbackHandlerRegExp<
-        "transition-start" | "transition-end" | `before-enter-${string}` | `on-enter-${string}` | `on-exit-${string}`,
+        | "transition-start"
+        | "transition-end"
+        | `before-enter-${string}`
+        | `on-enter-${string}`
+        | `on-exit-${string}`
+        | `on-just-enter-${string}`
+        | `on-back`,
         Pages
     >()
 
@@ -47,6 +53,9 @@ export class Pages {
     beforeEnter = (pageId: string, callback: (pages: Pages) => void) => this.ch.on(`before-enter-(${pageId})`, callback)
     onEnter = (pageId: string, callback: (pages: Pages) => void) => this.ch.on(`on-enter-(${pageId})`, callback)
     onExit = (pageId: string, callback: (pages: Pages) => void) => this.ch.on(`on-exit-(${pageId})`, callback)
+    onJustEnter = (pageId: string, callback: (pages: Pages) => void) =>
+        this.ch.on(`on-just-enter-(${pageId})`, callback)
+    onBack = this.ch.on.bind(this.ch, "on-back")
 
     getHistory() {
         return this.state.getHistory()
@@ -127,20 +136,24 @@ export class Pages {
     }
 
     private async goto(nextPageId: string, option: PagesGotoOption) {
-        this.transition(this.getCurrentPage(), this.dom.getPage(nextPageId, { noError: true }), nextPageId, option)
+        const result = await this.ch.run(`before-enter-${nextPageId}`, this)
+        if (!result) return
+
+        const from = this.getCurrentPage()
+        const to = this.dom.getPage(nextPageId, { noError: true })
+
+        if (!from) throw new Error("現在のページが存在しない。(そんなことある？？？)")
+        if (!to) throw new Error("存在しないページに行こうとした。")
+
+        this.transition(from, to, nextPageId, option)
     }
 
     private async transition(
         from: HTMLElement,
-        to: HTMLElement | undefined,
+        to: HTMLElement,
         nextPageId: string,
         { isBack, msIn, msOut }: PagesGotoOption,
     ) {
-        console.log(`before-enter-${nextPageId}`)
-        const result = await this.ch.run(`before-enter-${nextPageId}`, this)
-        if (!result) return
-        if (!to) throw new Error("存在しないページに行こうとした。")
-
         const layerFrom = parseToNumber(from.dataset.layer, 0)
         const layerTo = parseToNumber(to.dataset.layer, 0)
 
@@ -160,6 +173,11 @@ export class Pages {
 
         this.ch.run(`on-exit-${currentPageId}`, this)
         this.ch.run(`on-enter-${nextPageId}`, this)
+        if (isBack) {
+            this.ch.run("on-back", this)
+        } else {
+            this.ch.run(`on-just-enter-${nextPageId}`, this)
+        }
 
         this.ch.run("transition-end", this)
     }
